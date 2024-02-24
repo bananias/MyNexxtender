@@ -1,64 +1,8 @@
-substitutions:
-  ble_uuid_prefix: fd47416a-95fb-4206-88b5-b4a8045f75
-  ble_uuid_receive_service: ${ble_uuid_prefix}c1
-  notify_ble: "false"
-
-time:
-  - platform: sntp
-    id: sntp_time
-    timezone: Europe/Brussels
-    servers:
-      - 0.at.pool.ntp.org
-      - 0.pool.ntp.org
-      - 1.pool.ntp.org
-    on_time_sync:
-      then:
-        - logger.log: "Synchronized sntp clock"
-
-esp32_ble:
-  io_capability: keyboard_only
-
-esp32_ble_tracker:
-
-ble_client:
-  - mac_address: ${nexxtender_mac}
-    id: ${device_name}_ble_client_id
-    on_connect:
-      then:
-        - lambda: |-
-            ESP_LOGD("ble_client_lambda", "Connected to BLE device");
-            id(${device_name}_ble_client_id)->pair();
-            id(ble_client_connectivity).publish_state("1");
-        - esp32_ble_tracker.stop_scan:
-    on_disconnect:
-      then:
-        - lambda: |-
-            ESP_LOGD("ble_client_lambda", "Disconnected from BLE device");
-            id(ble_client_connectivity).publish_state("0");
-        - esp32_ble_tracker.start_scan:
-    on_passkey_notification:
-      then:
-        - logger.log:
-            format: "Enter this passkey on your BLE device: %06d"
-            args: [ passkey ]
-    on_passkey_request:
-      then:
-        - logger.log: "Authenticating with passkey"
-        - ble_client.passkey_reply:
-            id: ${device_name}_ble_client_id
-            passkey: ${nexxtender_pin}
-
-binary_sensor:
-  - platform: template
-    name: BLE Client
-    id: ble_client_connectivity
-    device_class: connectivity
-    icon: mdi:check-network-outline
-    entity_category: diagnostic
-
-switch:
-  - platform: ble_client
-    ble_client_id: ${device_name}_ble_client_id
-    name: ${friendly_name} BLE Client
-    icon: mdi:bluetooth-transfer
-    entity_category: diagnostic
+packages:
+  time: !include time.yaml
+  ble: !include ble.yaml
+  generic_data: !include generic_data.yaml
+  charging_car_data: !include charging_car_data.yaml
+  charging_grid_data: !include charging_grid_data.yaml
+  charging_basic_data: !include charging_basic_data.yaml
+  charging_advanced_data: !include charging_advanced_data.yaml

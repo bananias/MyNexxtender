@@ -2,6 +2,14 @@ substitutions:
   device_name: nexxtender
   friendly_name: Nexxtender
   update_interval: 30s
+  nexxtender_mac: !secret nexxtender_mac
+  nexxtender_pin: !secret nexxtender_passkey
+
+esp32:
+  board: esp32dev #Replace according to the esp32 you're using
+  framework:
+    type: esp-idf
+    version: recommended
 
 packages:
   MyNexxtender: github://bananias/MyNexxtender/package/nexxtender.yaml
@@ -16,8 +24,14 @@ api:
     key: !secret esphome_api_key
 
 ota:
-  password: !secret esphome_admin_password
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  ap:
+    ssid: ${device_name}-AP
+    password: !secret esphome_admin_password
+
+logger:
+
+captive_portal:

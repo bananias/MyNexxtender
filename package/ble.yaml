@@ -9,7 +9,7 @@ esp32_ble:
 esp32_ble_tracker:
 
 ble_client:
-  - mac_address: ${nexxtender_mac}
+  - mac_address: !secret nexxtender_mac
     id: ${device_name}_ble_client_id
     on_connect:
       then:
@@ -34,7 +34,7 @@ ble_client:
         - logger.log: "Authenticating with passkey"
         - ble_client.passkey_reply:
             id: ${device_name}_ble_client_id
-            passkey: ${nexxtender_pin}
+            passkey: !secret nexxtender_passkey
 
 binary_sensor:
   - platform: template
@@ -47,6 +47,6 @@ binary_sensor:
 switch:
   - platform: ble_client
     ble_client_id: ${device_name}_ble_client_id
-    name: ${friendly_name} BLE Client
+    name: BLE Client
     icon: mdi:bluetooth-transfer
     entity_category: diagnostic
